@@ -1,0 +1,2 @@
+ALTER TABLE dead_letters ADD COLUMN retried_at TIMESTAMPTZ;
+ALTER TABLE dead_letters ADD COLUMN retry_count INTEGER NOT NULL DEFAULT 0;

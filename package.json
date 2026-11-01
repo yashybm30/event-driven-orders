@@ -1,0 +1,60 @@
+{
+  "name": "event-driven-orders",
+  "version": "0.1.0",
+  "description": "Order processing with a PostgreSQL transactional outbox, BullMQ retries, idempotent workers and Kafka events",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "format": "prettier --write src test",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "pretest:integration": "npm run build",
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "start": "node --env-file-if-exists=.env dist/main.js",
+    "db:migrate": "node --env-file-if-exists=.env dist/migrate.js",
+    "token:dev": "node --env-file-if-exists=.env scripts/dev-token.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "@nestjs/swagger": "^11.2.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.6.0",
+    "express": "^5.1.0",
+    "zod": "^4.6.7",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "bullmq": "^6.5.3",
+    "kafkajs": "^2.2.4"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "@types/node": "^24.0.0",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.0",
+    "vitest": "^5.0.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^10.14.0",
+    "typescript-eslint": "^8.0.0",
+    "prettier": "^3.6.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/pg": "^8.15.5"
+  },
+  "overrides": {
+    "multer": "^2.4.1",
+    "js-yaml": "^5.4.1",
+    "deepmerge-ts": "^8.0.0"
+  }
+}

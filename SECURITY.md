@@ -1,0 +1,2 @@
+# Security
+Report vulnerabilities privately through GitHub private vulnerability reporting; do not include secrets in public issues. Rotate exposed keys immediately. Use TLS at the ingress, restricted network access to databases, and separate runtime and migration database roles. Example credentials are local development values only. OAuth requires your own registered provider application. Run `npm audit --omit=dev` before deployment.

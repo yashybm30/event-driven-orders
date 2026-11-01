@@ -1,0 +1,58 @@
+services:
+  kafka:
+    image: redpandadata/redpanda:v25.2.9
+    command: [redpanda, start, --overprovisioned, --smp, "1", --memory, 512M, --reserve-memory, 0M, --node-id, "0", --check=false, --kafka-addr, "internal://0.0.0.0:9092,external://0.0.0.0:19092", --advertise-kafka-addr, "internal://kafka:9092,external://localhost:19092"]
+    ports: ["127.0.0.1:19092:19092"]
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health", "--exit-when-healthy"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: local-development-only
+      POSTGRES_DB: portfolio
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d portfolio"]
+      interval: 2s
+      timeout: 1s
+      retries: 30
+  migrate:
+    build: .
+    command: ["node", "dist/migrate.js"]
+    environment:
+      DATABASE_URL: postgresql://postgres:local-development-only@postgres:5432/portfolio
+    depends_on:
+      postgres:
+        condition: service_healthy
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 1s
+      retries: 30
+  app:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgresql://postgres:local-development-only@postgres:5432/portfolio
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      QUEUE_PREFIX: ${QUEUE_PREFIX:-portfolio}
+      JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 48 characters}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
